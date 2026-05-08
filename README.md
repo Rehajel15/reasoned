@@ -6,6 +6,17 @@
 > 🇬🇧 **Note:** The app UI is in German only. An English version of this README
 > is provided below — but the app itself is not translated.
 
+<p align="center">
+  <a href="https://rehajel15.github.io/reasoned/">
+    <img src="https://img.shields.io/badge/%E2%96%B6%20Live--Demo%20%C3%B6ffnen-6750A4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live-Demo öffnen">
+  </a>
+</p>
+
+> ▶ **Live-Demo:** https://rehajel15.github.io/reasoned/ – eine vereinfachte
+> Web-Variante der Flutter-App, die alle fünf Regeln durchspielbar macht
+> (Onboarding, Rules-Screen, Feed, Steelman-Pflicht, 15-Sek-Cooldown im
+> Demo-Modus). Voll bedienbar im Browser, ohne Installation.
+
 ---
 
 ## Deutsch
@@ -137,6 +148,17 @@ Privates Schulprojekt, keine Lizenz vergeben.
 ---
 
 ## English
+
+<p align="center">
+  <a href="https://rehajel15.github.io/reasoned/">
+    <img src="https://img.shields.io/badge/%E2%96%B6%20Open%20live%20demo-6750A4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Open live demo">
+  </a>
+</p>
+
+> ▶ **Live demo:** https://rehajel15.github.io/reasoned/ – a simplified web
+> version of the Flutter app that lets you try all five rules end-to-end
+> (onboarding, rules screen, feed, mandatory steelman, 15-second cooldown
+> in demo mode). Runs entirely in the browser, no install required.
 
 A Flutter app that enforces political debates the way they should actually
 go: real names, steelmanning, cooldowns, popped filter bubbles, and written

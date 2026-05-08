@@ -1,0 +1,1325 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reasoned – Live-Demo</title>
+<link rel="icon" href="icon.png">
+<style>
+  :root {
+    --primary: #6750A4;
+    --primary-container: #EADDFF;
+    --on-primary: #FFFFFF;
+    --on-primary-container: #21005D;
+    --tertiary-container: #FFD8E4;
+    --secondary-container: #E8DEF8;
+    --on-secondary-container: #1D192B;
+    --surface: #FEF7FF;
+    --surface-container-low: #F7F2FA;
+    --surface-container: #F3EDF7;
+    --surface-container-high: #ECE6F0;
+    --on-surface: #1D1B20;
+    --on-surface-variant: #49454F;
+    --outline-variant: #CAC4D0;
+    --error: #B3261E;
+
+    --topic-tempolimit: #EF6C00;
+    --topic-buergergeld: #2E7D32;
+    --topic-klima: #00838F;
+    --topic-wahlrecht: #6A1B9A;
+
+    --stance-pro: #2E7D32;
+    --stance-contra: #C62828;
+    --stance-nachfrage: #6A1B9A;
+    --stance-neutral: #455A64;
+
+    --verified: #1976D2;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--surface-container);
+    color: var(--on-surface);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    line-height: 1.4;
+    min-height: 100vh;
+  }
+
+  #app {
+    max-width: 480px;
+    margin: 0 auto;
+    background: var(--surface-container-low);
+    min-height: 100vh;
+    box-shadow: 0 0 24px rgba(0,0,0,0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .demo-banner {
+    background: #fffbe6;
+    color: #6b5d00;
+    font-size: 12px;
+    padding: 6px 14px;
+    border-bottom: 1px solid #f0e3a0;
+    text-align: center;
+  }
+
+  /* Header / AppBar */
+  .appbar {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 18px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .appbar .icon-btn {
+    background: transparent;
+    border: none;
+    color: inherit;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+  }
+  .appbar .icon-btn:hover { background: rgba(0,0,0,0.06); }
+  .appbar .title { flex: 1; }
+  .appbar .badge {
+    background: var(--error);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 1px 6px;
+    margin-left: 4px;
+  }
+
+  /* Generic content */
+  .content { padding: 12px 0 96px; flex: 1; }
+  .pad { padding: 0 16px; }
+
+  /* Hero header (gradient) */
+  .hero {
+    background: linear-gradient(135deg, var(--primary-container), var(--tertiary-container));
+    border-radius: 0 0 28px 28px;
+    padding: 24px 20px;
+    color: var(--on-primary-container);
+  }
+  .hero h1 {
+    margin: 8px 0 4px;
+    font-size: 22px;
+    font-weight: 800;
+  }
+  .hero p { margin: 0; opacity: 0.85; font-size: 14px; }
+
+  /* Form fields */
+  .field {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--outline-variant);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--on-surface);
+    font-family: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px var(--primary);
+  }
+  textarea.field { min-height: 110px; resize: vertical; }
+  .label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--on-surface-variant);
+  }
+  .helper { font-size: 12px; color: var(--on-surface-variant); margin-top: 4px; }
+  .helper.error { color: var(--error); }
+
+  /* Buttons */
+  .btn-primary {
+    background: var(--primary);
+    color: var(--on-primary);
+    border: none;
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+  }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--outline-variant);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-text {
+    background: transparent;
+    color: var(--primary);
+    border: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* Avatar */
+  .avatar {
+    border-radius: 50%;
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar.avatar-onboard {
+    width: 112px;
+    height: 112px;
+    font-size: 56px;
+    border: 2px solid var(--primary);
+    background: var(--primary-container);
+    margin: 0 auto;
+    position: relative;
+  }
+  .avatar.avatar-onboard .cam-badge {
+    position: absolute;
+    bottom: 0; right: 0;
+    background: var(--primary);
+    color: var(--on-primary);
+    border: 2px solid var(--surface-container-low);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--outline-variant);
+    border-radius: 16px;
+    margin: 8px 12px;
+    overflow: hidden;
+  }
+  .post-card {
+    border-left-width: 5px;
+    border-left-style: solid;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .post-card:hover { background: var(--surface-container); }
+  .post-card .row { padding: 14px; }
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .post-meta .who {
+    flex: 1;
+    min-width: 0;
+  }
+  .post-meta .name {
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .post-meta .city { font-size: 12px; color: var(--on-surface-variant); }
+  .post-meta .time { font-size: 12px; color: var(--on-surface-variant); }
+  .verified-icon { color: var(--verified); font-size: 14px; }
+  .post-body { font-size: 14px; line-height: 1.5; }
+  .post-footer {
+    margin-top: 10px;
+    color: var(--on-surface-variant);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; margin-bottom: 8px; }
+  .chip {
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid;
+  }
+  .chip.topic-tempolimit { color: var(--topic-tempolimit); background: rgba(239,108,0,0.12); border-color: rgba(239,108,0,0.4); }
+  .chip.topic-buergergeld { color: var(--topic-buergergeld); background: rgba(46,125,50,0.12); border-color: rgba(46,125,50,0.4); }
+  .chip.topic-klima { color: var(--topic-klima); background: rgba(0,131,143,0.12); border-color: rgba(0,131,143,0.4); }
+  .chip.topic-wahlrecht { color: var(--topic-wahlrecht); background: rgba(106,27,154,0.12); border-color: rgba(106,27,154,0.4); }
+  .chip.stance-pro { color: var(--stance-pro); background: rgba(46,125,50,0.12); border-color: rgba(46,125,50,0.4); }
+  .chip.stance-contra { color: var(--stance-contra); background: rgba(198,40,40,0.12); border-color: rgba(198,40,40,0.4); }
+  .chip.stance-nachfrage { color: var(--stance-nachfrage); background: rgba(106,27,154,0.12); border-color: rgba(106,27,154,0.4); }
+  .chip.stance-neutral { color: var(--stance-neutral); background: rgba(69,90,100,0.12); border-color: rgba(69,90,100,0.4); }
+
+  /* Reply */
+  .reply {
+    margin: 6px 12px;
+    background: var(--surface);
+    border: 1px solid var(--outline-variant);
+    border-left: 4px solid var(--stance-pro);
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+  }
+  .reply.contra { border-left-color: var(--stance-contra); }
+  .reply.nachfrage { border-left-color: var(--stance-nachfrage); }
+  .reply.neutral { border-left-color: var(--stance-neutral); }
+  .reply.does-not-count { border-color: rgba(179,38,30,0.4); }
+  .reply .steelman {
+    background: rgba(232,222,248,0.6);
+    border-left: 3px solid var(--primary);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin: 8px 0;
+    font-style: italic;
+    font-size: 13px;
+  }
+  .reply .steelman .label-mini {
+    display: block;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--on-secondary-container);
+    margin-bottom: 4px;
+  }
+  .reply .does-not-count-note {
+    color: var(--error);
+    font-size: 12px;
+    margin-top: 6px;
+  }
+
+  /* Rule banner */
+  .banner {
+    border-radius: 10px;
+    padding: 12px;
+    margin: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .banner.cool { background: rgba(230,81,0,0.08); border-left: 4px solid #E65100; }
+  .banner.calm { background: rgba(46,125,50,0.08); border-left: 4px solid #2E7D32; }
+  .banner.shield { background: rgba(106,27,154,0.08); border-left: 4px solid #6A1B9A; }
+  .banner.balance { background: rgba(46,125,50,0.08); border-left: 4px solid #2E7D32; }
+  .banner h4 { margin: 0 0 4px; font-size: 14px; font-weight: 700; }
+  .banner p { margin: 0; font-size: 13px; }
+
+  /* Rule cards (rules screen) */
+  .rule-card {
+    border-radius: 14px;
+    border: 1px solid;
+    padding: 14px;
+    margin: 0 16px 10px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .rule-card .icon-box {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    color: white;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .rule-card h3 { margin: 0 0 4px; font-size: 16px; font-weight: 800; }
+  .rule-card p { margin: 0; font-size: 13px; }
+
+  /* Settings */
+  .list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--outline-variant);
+  }
+  .list-item:hover { background: var(--surface-container); }
+  .list-item .col { flex: 1; }
+  .list-item .title { font-weight: 600; font-size: 14px; }
+  .list-item .subtitle { font-size: 12px; color: var(--on-surface-variant); }
+  .switch {
+    position: relative;
+    width: 48px; height: 28px;
+    background: var(--outline-variant);
+    border-radius: 14px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .switch.on { background: var(--primary); }
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 24px; height: 24px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .switch.on::after { transform: translateX(20px); }
+
+  /* Segmented control */
+  .seg {
+    display: flex;
+    border: 1px solid var(--outline-variant);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .seg button {
+    flex: 1;
+    padding: 10px 6px;
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--outline-variant);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    color: var(--on-surface-variant);
+  }
+  .seg button:last-child { border-right: none; }
+  .seg button.active {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    font-weight: 700;
+  }
+
+  /* FAB */
+  .fab {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #00C8A5;
+    color: #003B33;
+    border: none;
+    border-radius: 16px;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,200,165,0.35);
+    font-family: inherit;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Pending tile */
+  .pending-tile { padding: 14px; }
+  .pending-tile .progress {
+    height: 6px;
+    background: var(--outline-variant);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .pending-tile .progress > div {
+    height: 100%;
+    background: var(--primary);
+    transition: width 1s linear;
+  }
+  .pending-tile .meta { display: flex; align-items: center; font-size: 13px; gap: 6px; }
+  .pending-tile .meta .spacer { flex: 1; }
+
+  /* Snack */
+  .snack {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c2530;
+    color: white;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    z-index: 100;
+    max-width: 90%;
+    text-align: center;
+  }
+
+  /* Checkbox */
+  .check-row {
+    background: var(--surface-container-high);
+    border-radius: 12px;
+    padding: 8px;
+    margin: 8px 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .check-row input { width: 18px; height: 18px; cursor: pointer; }
+  .check-row span { font-weight: 600; font-size: 14px; }
+
+  /* Bottom action bar */
+  .bottom-bar {
+    position: sticky;
+    bottom: 0;
+    background: var(--surface-container-low);
+    border-top: 1px solid var(--outline-variant);
+    padding: 10px 16px 14px;
+  }
+
+  .center-text { text-align: center; color: var(--on-surface-variant); font-size: 13px; padding: 24px; }
+  .small { font-size: 12px; color: var(--on-surface-variant); }
+  .row-flex { display: flex; align-items: center; gap: 8px; }
+  .mb-12 { margin-bottom: 12px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mt-16 { margin-top: 16px; }
+  .mt-20 { margin-top: 20px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+'use strict';
+
+// =========================================================
+// Demo banner (only relevant on github.io)
+// =========================================================
+const DEMO_BANNER = 'Web-Demo der Flutter-App Reasoned · App-UI ist Deutsch · Cooldown ist auf Demo-Modus gestellt';
+
+// =========================================================
+// Topic / Stance metadata
+// =========================================================
+const TOPICS = {
+  tempolimit:   { label: 'Tempolimit auf Autobahnen', color: '#EF6C00', icon: '🚗' },
+  buergergeld:  { label: 'Bürgergeld',                color: '#2E7D32', icon: '💶' },
+  klima:        { label: 'Klimaschutz vs. Wirtschaft', color: '#00838F', icon: '🌱' },
+  wahlrecht:    { label: 'Wahlrecht ab 16',           color: '#6A1B9A', icon: '🗳️' },
+};
+
+const STANCES = {
+  pro:        { label: 'Zustimmung', color: '#2E7D32', icon: '👍' },
+  contra:     { label: 'Ablehnung',  color: '#C62828', icon: '👎' },
+  nachfrage:  { label: 'Nachfrage',  color: '#6A1B9A', icon: '❓' },
+  neutral:    { label: 'Neutral',    color: '#455A64', icon: '◦'  },
+};
+
+const RULES = [
+  { icon: '🪪', color: '#1565C0', title: 'Zeige dich',
+    body: 'Niemand postet anonym. Klarname und verifiziertes Profil sind Pflicht. So übernimmst du Verantwortung für das, was du sagst – und Hassrede verliert ihren Schutzraum.' },
+  { icon: '🛡️', color: '#6A1B9A', title: 'Schätze deine Gegner',
+    body: 'Bevor du widersprichst, fasst du die Gegenposition fair zusammen (Steelman). Erst dann wird dein Antwortfeld freigeschaltet.' },
+  { icon: '⏳', color: '#E65100', title: 'Bewahre Ruhe',
+    body: 'Aufgeladene Beiträge werden 15 Minuten zurückgehalten, bevor sie erscheinen. In der Wartezeit darfst du dich umentscheiden.' },
+  { icon: '🫧', color: '#00838F', title: 'Platzt deine Blase',
+    body: 'Dein Feed mischt bewusst Gegenpositionen ein. Du siehst andere Sichtweisen statt nur deiner eigenen Echokammer.' },
+  { icon: '⚖️', color: '#2E7D32', title: 'Begründe statt bewerte',
+    body: 'Es gibt keine Like- oder Dislike-Buttons. Zustimmung und Ablehnung müssen geschrieben werden – mit Mindestlänge.' },
+];
+
+// =========================================================
+// Initial seeded data
+// =========================================================
+function seedUsers() {
+  return [
+    { id: 'u-anna',  klarname: 'Anna Müller',     stadt: 'Hamburg', verified: true, rulesAccepted: true, avatar: 'avatars/anna.png' },
+    { id: 'u-bernd', klarname: 'Bernd Schäfer',    stadt: 'München', verified: true, rulesAccepted: true, avatar: 'avatars/bernd.png' },
+    { id: 'u-clara', klarname: 'Clara Otieno',     stadt: 'Leipzig', verified: true, rulesAccepted: true, avatar: 'avatars/clara.png' },
+    { id: 'u-david', klarname: 'David Petrov',     stadt: 'Köln',    verified: true, rulesAccepted: true, avatar: 'avatars/david.png' },
+  ];
+}
+
+function seedPosts() {
+  const t0 = Date.now() - 6 * 3600_000;
+  let i = 0;
+  const at = (h) => t0 + h * 3600_000;
+  return [
+    { id: 'p1', authorId: 'u-anna',  topic: 'tempolimit', stance: 'pro',
+      content: 'Ein generelles Tempolimit von 130 km/h würde nachweislich CO₂ einsparen, die Unfallzahlen senken und den Verkehrsfluss verstetigen. Die meisten EU-Länder leben seit Jahrzehnten gut damit – warum sollte das ausgerechnet hier nicht funktionieren?',
+      publishedAt: at(0), replies: [] },
+    { id: 'p2', authorId: 'u-bernd', topic: 'tempolimit', stance: 'contra',
+      content: 'Ein pauschales Tempolimit löst das Klimaproblem nicht. Die eingesparten Emissionen sind im Gesamtbild marginal. Statt Symbolpolitik sollten wir lieber in Schienen, Brückensanierung und E-Fuels investieren – das wirkt strukturell.',
+      publishedAt: at(1), replies: [] },
+    { id: 'p3', authorId: 'u-clara', topic: 'buergergeld', stance: 'pro',
+      content: 'Das Bürgergeld ist sozialstaatlich konsequent: Es ersetzt erniedrigende Sanktionen durch Zumutbarkeitsregeln und gibt Menschen Spielraum, sich umzuorientieren. Wer Armut bekämpfen will, muss vor allem Vertrauen finanzieren.',
+      publishedAt: at(2), replies: [] },
+    { id: 'p4', authorId: 'u-david', topic: 'buergergeld', stance: 'contra',
+      content: 'Wenn Arbeit kaum mehr als Bürgergeld bringt, gerät das Lohnabstandsgebot in Schieflage. Eine Reform muss Erwerbstätigkeit klar attraktiver machen, sonst verlieren wir die Akzeptanz des Sozialstaats in der Mittelschicht.',
+      publishedAt: at(3), replies: [] },
+    { id: 'p5', authorId: 'u-clara', topic: 'klima', stance: 'nachfrage',
+      content: 'Mich interessiert: Welche konkreten Branchen seht ihr als unrettbar an, wenn der CO₂-Preis weiter steigt – und welche profitieren? Quellen gerne mit dazu.',
+      publishedAt: at(4), replies: [] },
+    { id: 'p6', authorId: 'u-anna',  topic: 'wahlrecht', stance: 'pro',
+      content: 'Wenn 16-Jährige Verträge mitunterschreiben und Steuern zahlen, dürfen sie auch wählen. Studien aus Österreich zeigen keine schlechteren Wahlentscheidungen, sondern eine höhere langfristige Wahlbeteiligung.',
+      publishedAt: at(5), replies: [] },
+    { id: 'p7', authorId: 'u-bernd', topic: 'wahlrecht', stance: 'contra',
+      content: 'Wahlrecht heißt Reife für komplexe Trade-offs. Bevor wir das Wahlalter senken, sollten wir politische Bildung in Schulen wirklich stärken – sonst geben wir eine Stimme ab, ohne den Boden dafür bereitet zu haben.',
+      publishedAt: at(5.5),
+      replies: [{
+        id: 'r1', authorId: 'u-clara', stance: 'contra',
+        steelman: 'Du argumentierst, dass politische Reife entscheidend für ein verantwortungsvolles Wahlrecht ist und dass die Schule diese Reife bisher nicht zuverlässig vermittelt.',
+        content: 'Ich teile die Sorge um politische Bildung, aber Wahlrecht und Bildungsreform schließen sich nicht aus. Wer Bildung ans Wahlrecht koppelt, verschiebt es faktisch auf Sankt-Nimmerleinstag – und benachteiligt junge Menschen, deren Schulen am wenigsten Ressourcen haben.',
+        publishedAt: at(6)
+      }]
+    },
+  ];
+}
+
+// =========================================================
+// State
+// =========================================================
+const state = {
+  screen: 'onboarding',  // 'onboarding' | 'rules' | 'feed' | 'detail' | 'composePost' | 'composeReply' | 'pending' | 'settings'
+  detailPostId: null,
+  composeReplyPostId: null,
+  users: seedUsers(),
+  posts: seedPosts(),
+  pending: [],
+  currentUserId: null,    // null until onboarded
+  demoMode: true,         // 15s vs 15min
+  // onboarding form
+  onboard: { name: '', stadt: '', avatar: null, verifying: false },
+  // rules screen
+  rulesAccepted: false,
+  // compose post form
+  cp: { topic: 'tempolimit', stance: 'pro', content: '' },
+  // compose reply form
+  cr: { stance: 'contra', steelman: '', content: '' },
+  // snack
+  snack: null,
+  snackTimer: null,
+};
+
+const REPLY_MIN_CONTENT = 120;
+const STEELMAN_MIN = 80;
+const COOLDOWN_MS = () => state.demoMode ? 15_000 : 15 * 60_000;
+
+// =========================================================
+// Helpers
+// =========================================================
+function $(id) { return document.getElementById(id); }
+function escapeHtml(s) {
+  return String(s)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+function nl2br(s) { return escapeHtml(s).replaceAll('\n', '<br>'); }
+
+function userById(id) { return state.users.find(u => u.id === id); }
+function postById(id) { return state.posts.find(p => p.id === id); }
+function currentUser() { return userById(state.currentUserId); }
+
+function relTime(ts) {
+  const d = (Date.now() - ts) / 1000;
+  if (d < 60) return 'gerade';
+  if (d < 3600) return Math.floor(d / 60) + ' Min.';
+  if (d < 86400) return Math.floor(d / 3600) + ' Std.';
+  return Math.floor(d / 86400) + ' T.';
+}
+
+function avatarHtml(user, size = 36) {
+  const s = `width:${size}px;height:${size}px;font-size:${Math.round(size * 0.45)}px`;
+  if (user && user.avatar) {
+    return `<span class="avatar" style="${s}"><img src="${escapeHtml(user.avatar)}" alt=""></span>`;
+  }
+  const ch = user && user.klarname ? user.klarname[0].toUpperCase() : '?';
+  return `<span class="avatar" style="${s}">${escapeHtml(ch)}</span>`;
+}
+
+function snack(msg) {
+  state.snack = msg;
+  if (state.snackTimer) clearTimeout(state.snackTimer);
+  state.snackTimer = setTimeout(() => { state.snack = null; render(); }, 3500);
+  render();
+}
+
+// =========================================================
+// Emotion detection
+// =========================================================
+const CHARGED = ['idiot','idioten','dumm','dumme','dummkopf','lüge','lügen','lügner','verrückt','wahnsinn','unverschämt','frechheit','skandal','hass','hassen','verachte','widerlich','ekelhaft','asozial','spinner','arschloch','volksverräter','zerstören','vernichten','feind','feinde'];
+function checkEmotion(text) {
+  const t = (text || '').trim();
+  if (!t) return { isEmotional: false, reason: '' };
+  const ex = (t.match(/!/g) || []).length;
+  if (ex >= 3) return { isEmotional: true, reason: `Mehrere Ausrufezeichen (${ex}) deuten auf Affekt hin.` };
+  const letters = t.replace(/[^A-Za-zÄÖÜäöüß]/g, '');
+  if (letters.length >= 12) {
+    const upper = letters.replace(/[a-zäöüß]/g, '');
+    if (upper.length / letters.length > 0.6) {
+      return { isEmotional: true, reason: 'Überwiegend Großbuchstaben wirken wie Geschrei.' };
+    }
+  }
+  const lower = t.toLowerCase();
+  for (const w of CHARGED) {
+    const re = new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b');
+    if (re.test(lower)) return { isEmotional: true, reason: `Aufgeladenes Wort erkannt: „${w}".` };
+  }
+  return { isEmotional: false, reason: '' };
+}
+
+// =========================================================
+// Filter-bubble feed mix
+// =========================================================
+function feedForCurrentUser() {
+  const me = currentUser();
+  if (!me) return state.posts.slice();
+  // dominant stance per topic for current user's own posts
+  const own = {};
+  for (const p of state.posts) {
+    if (p.authorId !== me.id) continue;
+    own[p.topic] = own[p.topic] || {};
+    own[p.topic][p.stance] = (own[p.topic][p.stance] || 0) + 1;
+  }
+  const opp = (s) => s === 'pro' ? 'contra' : s === 'contra' ? 'pro' : 'neutral';
+  const same = [], other = [], rest = [];
+  for (const p of state.posts) {
+    const m = own[p.topic];
+    if (!m) { rest.push(p); continue; }
+    const dom = Object.entries(m).sort((a,b) => b[1]-a[1])[0][0];
+    if (p.stance === dom) same.push(p);
+    else if (p.stance === opp(dom)) other.push(p);
+    else rest.push(p);
+  }
+  const byNew = (a,b) => b.publishedAt - a.publishedAt;
+  same.sort(byNew); other.sort(byNew); rest.sort(byNew);
+  const out = [];
+  let i=0,j=0,k=0;
+  while (i < same.length || j < other.length || k < rest.length) {
+    if (j < other.length) out.push(other[j++]);
+    if (i < same.length) out.push(same[i++]);
+    if (k < rest.length) out.push(rest[k++]);
+  }
+  return out;
+}
+
+// =========================================================
+// Pending posts ticker (promotes when due)
+// =========================================================
+setInterval(() => {
+  const now = Date.now();
+  let changed = false;
+  for (const p of [...state.pending]) {
+    if (p.publishAt <= now) {
+      state.pending = state.pending.filter(x => x.id !== p.id);
+      state.posts.unshift({
+        id: p.id, authorId: p.authorId, topic: p.topic,
+        stance: p.stance, content: p.content,
+        publishedAt: now, replies: []
+      });
+      changed = true;
+    }
+  }
+  // re-render every second when on pending screen so countdown ticks; otherwise only when something changed
+  if (changed || state.screen === 'pending') render();
+}, 1000);
+
+// =========================================================
+// Actions
+// =========================================================
+function nav(screen, params = {}) {
+  state.screen = screen;
+  if (params.detailPostId !== undefined) state.detailPostId = params.detailPostId;
+  if (params.composeReplyPostId !== undefined) state.composeReplyPostId = params.composeReplyPostId;
+  // reset compose forms
+  if (screen === 'composePost') state.cp = { topic: 'tempolimit', stance: 'pro', content: '' };
+  if (screen === 'composeReply') state.cr = { stance: 'contra', steelman: '', content: '' };
+  render();
+}
+
+function startVerifying() {
+  const name = state.onboard.name.trim();
+  const stadt = state.onboard.stadt.trim();
+  if (name.length < 4 || !name.includes(' ')) {
+    snack('Bitte Vor- und Nachname mit Leerzeichen eingeben.'); return;
+  }
+  if (!stadt) { snack('Bitte Stadt eingeben.'); return; }
+  state.onboard.verifying = true;
+  render();
+  setTimeout(() => {
+    const id = 'u-' + Math.random().toString(36).slice(2, 8);
+    state.users.push({
+      id, klarname: name, stadt,
+      verified: true, rulesAccepted: false,
+      avatar: state.onboard.avatar,
+    });
+    state.currentUserId = id;
+    state.onboard.verifying = false;
+    state.screen = 'rules';
+    render();
+  }, 1500);
+}
+
+function acceptRules() {
+  const u = currentUser(); if (!u) return;
+  u.rulesAccepted = true;
+  state.screen = 'feed';
+  render();
+}
+
+function submitPost() {
+  const me = currentUser(); if (!me) return;
+  const { topic, stance, content } = state.cp;
+  const t = content.trim();
+  if (t.length < 60) { snack('Mindestens 60 Zeichen.'); return; }
+  const emo = checkEmotion(t);
+  const id = 'p' + Date.now();
+  if (emo.isEmotional) {
+    state.pending.push({
+      id, authorId: me.id, topic, stance, content: t,
+      queuedAt: Date.now(),
+      publishAt: Date.now() + COOLDOWN_MS(),
+      reason: emo.reason,
+    });
+    state.screen = 'pending';
+    snack(`Beitrag wartet ${state.demoMode ? '15 Sek.' : '15 Min.'} in der Abkühlzeit.`);
+  } else {
+    state.posts.unshift({
+      id, authorId: me.id, topic, stance, content: t,
+      publishedAt: Date.now(), replies: [],
+    });
+    state.screen = 'feed';
+    snack('Beitrag veröffentlicht.');
+  }
+  render();
+}
+
+function cancelPending(id) {
+  state.pending = state.pending.filter(p => p.id !== id);
+  render();
+}
+
+function submitReply() {
+  const me = currentUser(); if (!me) return;
+  const post = postById(state.composeReplyPostId); if (!post) return;
+  const { stance, steelman, content } = state.cr;
+  const c = content.trim();
+  if (c.length < REPLY_MIN_CONTENT) {
+    snack(`Mindestens ${REPLY_MIN_CONTENT} Zeichen, damit deine Antwort zählt.`); return;
+  }
+  if (stance === 'contra' && steelman.trim().length < STEELMAN_MIN) {
+    snack(`Steelman braucht mindestens ${STEELMAN_MIN} Zeichen.`); return;
+  }
+  post.replies.push({
+    id: 'r' + Date.now(), authorId: me.id, stance,
+    steelman: stance === 'contra' ? steelman.trim() : null,
+    content: c, publishedAt: Date.now(),
+  });
+  state.screen = 'detail';
+  snack('Antwort gesendet.');
+  render();
+}
+
+function switchUser(id) {
+  state.currentUserId = id;
+  state.screen = 'feed';
+  render();
+}
+
+// =========================================================
+// Avatar picker (file → object URL)
+// =========================================================
+function pickAvatarFile(file) {
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  state.onboard.avatar = url;
+  render();
+}
+
+// =========================================================
+// Renderers
+// =========================================================
+function renderAppbar({ title, back, actions = '' }) {
+  const backBtn = back ? `<button class="icon-btn" onclick="nav('${back}')" aria-label="Zurück">←</button>` : '';
+  return `
+    <header class="appbar">
+      ${backBtn}
+      <span class="title">${escapeHtml(title)}</span>
+      ${actions}
+    </header>`;
+}
+
+function renderOnboarding() {
+  const o = state.onboard;
+  const initial = o.name.trim() ? o.name.trim()[0].toUpperCase() : '';
+  const avatarPreview = o.avatar
+    ? `<img src="${escapeHtml(o.avatar)}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
+    : (initial ? initial : '👤');
+
+  return `
+    <div class="hero">
+      <div style="font-size:32px;">💬</div>
+      <h1>Willkommen bei Reasoned</h1>
+      <p>Politische Debatten, mit Regeln, die für alle gelten.</p>
+    </div>
+    <div class="content pad">
+      <h3 style="margin:18px 0 4px">Lege dein verifiziertes Profil an</h3>
+      <p class="small">Anonyme Konten gibt es hier nicht. Du brauchst deinen echten Namen und eine kurze Verifizierung. Ein Profilbild ist optional.</p>
+
+      <div style="margin:20px 0 4px;text-align:center">
+        <label class="avatar avatar-onboard" for="avatarFile" style="cursor:pointer">
+          ${avatarPreview}
+          <span class="cam-badge">📷</span>
+        </label>
+        <input id="avatarFile" type="file" accept="image/*" style="display:none" onchange="pickAvatarFile(this.files[0])">
+        <div class="small" style="margin-top:6px">${o.avatar ? 'Antippen, um Bild zu ändern' : 'Profilbild auswählen (optional) – sonst wird dein Anfangsbuchstabe angezeigt'}</div>
+      </div>
+
+      <div class="mt-20">
+        <div class="label">Vor- und Nachname (Klarname)</div>
+        <input class="field" id="onbName" value="${escapeHtml(o.name)}" placeholder="Lina Bauer"
+               oninput="state.onboard.name = this.value; render()">
+      </div>
+      <div class="mt-16">
+        <div class="label">Stadt</div>
+        <input class="field" id="onbStadt" value="${escapeHtml(o.stadt)}" placeholder="Berlin"
+               oninput="state.onboard.stadt = this.value; render()">
+      </div>
+
+      <div class="banner shield mt-20" style="margin-left:0;margin-right:0">
+        <span style="font-size:22px">👆</span>
+        <div>
+          <h4>Verifizierung</h4>
+          <p>Im Prototyp wird die Verifizierung simuliert (1,5 Sek.). In Produktion wäre hier z. B. ein eID- oder Postident-Schritt.</p>
+        </div>
+      </div>
+
+      <button class="btn-primary mt-20" ${o.verifying ? 'disabled' : ''} onclick="startVerifying()">
+        ${o.verifying ? '⏳ Verifiziere…' : '✓ Klarname bestätigen & verifizieren'}
+      </button>
+    </div>`;
+}
+
+function renderRules() {
+  const u = currentUser();
+  const tiles = RULES.map((r, i) => `
+    <div class="rule-card" style="background:${r.color}14;border-color:${r.color}40">
+      <div class="icon-box" style="background:${r.color}">${r.icon}</div>
+      <div>
+        <h3 style="color:${r.color}">${i + 1}. ${escapeHtml(r.title)}</h3>
+        <p>${escapeHtml(r.body)}</p>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    <div class="hero">
+      <div style="font-size:32px;">📜</div>
+      <h1>Spielregeln für gute Debatten</h1>
+      <p>${u ? 'Hallo ' + escapeHtml(u.klarname.split(' ')[0]) + ', bevor du loslegst:' : 'Reasoned funktioniert nur, wenn alle dieselben fünf Regeln einhalten.'}</p>
+    </div>
+    <div class="content" style="padding-top:14px">
+      ${tiles}
+      <label class="check-row">
+        <input type="checkbox" ${state.rulesAccepted ? 'checked' : ''}
+          onchange="state.rulesAccepted = this.checked; render()">
+        <span>Ich habe die Regeln gelesen und halte mich daran.</span>
+      </label>
+    </div>
+    <div class="bottom-bar">
+      <button class="btn-primary" ${state.rulesAccepted ? '' : 'disabled'} onclick="acceptRules()">
+        ✓ Akzeptieren und in den Feed
+      </button>
+    </div>`;
+}
+
+function renderPostCardHtml(post, opts = {}) {
+  const author = userById(post.authorId);
+  const topic = TOPICS[post.topic];
+  const stance = STANCES[post.stance];
+  const counting = post.replies.filter(r => replyCounts(r)).length;
+  const clickAttr = opts.noClick
+    ? ''
+    : `onclick="nav('detail', { detailPostId: '${post.id}' })" style="cursor:pointer;border-left-color:${topic.color}"`;
+  const inlineStyle = opts.noClick
+    ? `style="border-left-color:${topic.color};cursor:default"`
+    : '';
+  return `
+    <div class="card post-card" ${clickAttr || inlineStyle}>
+      <div class="row">
+        <div class="post-meta">
+          ${avatarHtml(author, 38)}
+          <div class="who">
+            <div class="name">${escapeHtml(author.klarname)}${author.verified ? '<span class="verified-icon">✓</span>' : ''}</div>
+            <div class="city">${escapeHtml(author.stadt)}</div>
+          </div>
+          <div class="time">${relTime(post.publishedAt)}</div>
+        </div>
+        <div class="chips">
+          <span class="chip topic-${post.topic}">${topic.icon} ${escapeHtml(topic.label)}</span>
+          <span class="chip stance-${post.stance}">${stance.icon} ${escapeHtml(stance.label)}</span>
+        </div>
+        <div class="post-body">${nl2br(post.content)}</div>
+        <div class="post-footer">💬 ${counting} begründete Antworten</div>
+      </div>
+    </div>`;
+}
+
+function renderFeed() {
+  const posts = feedForCurrentUser();
+  const pendingCount = state.pending.filter(p => p.authorId === state.currentUserId).length;
+  const actions = `
+    <button class="icon-btn" onclick="nav('pending')" aria-label="Wartend">⏳${pendingCount > 0 ? `<span class="badge">${pendingCount}</span>` : ''}</button>
+    <button class="icon-btn" onclick="nav('settings')" aria-label="Einstellungen">⚙️</button>
+  `;
+  return `
+    ${renderAppbar({ title: 'Reasoned', actions })}
+    <div class="content">
+      ${posts.length === 0 ? '<div class="center-text">Noch keine Beiträge.</div>' : posts.map(renderPostCardHtml).join('')}
+    </div>
+    <button class="fab" onclick="nav('composePost')">✏️ Neuer Beitrag</button>`;
+}
+
+function replyCounts(r) {
+  if (r.content.trim().length < REPLY_MIN_CONTENT) return false;
+  if (r.stance === 'contra' && (!r.steelman || r.steelman.trim().length < STEELMAN_MIN)) return false;
+  return true;
+}
+
+function renderReplyHtml(r) {
+  const author = userById(r.authorId);
+  const stance = STANCES[r.stance];
+  const counts = replyCounts(r);
+  return `
+    <div class="reply ${r.stance} ${counts ? '' : 'does-not-count'}">
+      <div class="post-meta">
+        ${avatarHtml(author, 28)}
+        <div class="who">
+          <div class="name" style="font-size:13px">${escapeHtml(author.klarname)}${author.verified ? '<span class="verified-icon">✓</span>' : ''}</div>
+        </div>
+        <span class="chip stance-${r.stance}" style="font-size:11px;padding:2px 8px">${stance.icon} ${escapeHtml(stance.label)}</span>
+      </div>
+      ${r.steelman ? `
+        <div class="steelman">
+          <span class="label-mini">🛡️ Steelman der Gegenposition</span>
+          ${escapeHtml(r.steelman)}
+        </div>` : ''}
+      <div>${nl2br(r.content)}</div>
+      ${counts ? '' : '<div class="does-not-count-note">⚠️ Zählt nicht – die Begründung erfüllt die Mindestanforderungen nicht.</div>'}
+    </div>`;
+}
+
+function renderDetail() {
+  const post = postById(state.detailPostId);
+  if (!post) { return renderAppbar({ title: 'Beitrag', back: 'feed' }) + '<div class="content"><div class="center-text">Beitrag nicht gefunden.</div></div>'; }
+  const counting = post.replies.filter(replyCounts).length;
+  const notCounting = post.replies.length - counting;
+  return `
+    ${renderAppbar({ title: 'Beitrag', back: 'feed' })}
+    <div class="content">
+      ${renderPostCardHtml(post)}
+      <div style="padding:16px 16px 6px;font-weight:700">
+        Antworten (${counting} begründet${notCounting > 0 ? ', ' + notCounting + ' zählen nicht' : ''})
+      </div>
+      ${post.replies.length === 0
+        ? '<div class="center-text">Noch keine Antworten. Sei die erste Person, die sachlich antwortet.</div>'
+        : post.replies.map(renderReplyHtml).join('')}
+    </div>
+    <button class="fab" onclick="nav('composeReply', { composeReplyPostId: '${post.id}' })">↩️ Antworten</button>`;
+}
+
+function renderComposePost() {
+  const cp = state.cp;
+  const emo = checkEmotion(cp.content);
+  const topicOptions = Object.entries(TOPICS).map(([k, t]) => `<option value="${k}" ${cp.topic === k ? 'selected' : ''}>${escapeHtml(t.label)}</option>`).join('');
+
+  const stanceSeg = ['pro','contra','nachfrage','neutral'].map(s =>
+    `<button class="${cp.stance === s ? 'active' : ''}" onclick="state.cp.stance='${s}';render()">${escapeHtml(STANCES[s].label)}</button>`
+  ).join('');
+
+  return `
+    ${renderAppbar({ title: 'Neuer Beitrag', back: 'feed' })}
+    <div class="content pad">
+      <div class="label mt-16">Thema</div>
+      <select class="field" onchange="state.cp.topic=this.value;render()">${topicOptions}</select>
+
+      <div class="label mt-16">Deine Position</div>
+      <div class="seg">${stanceSeg}</div>
+
+      <div class="label mt-16">Dein Beitrag</div>
+      <textarea class="field" id="cpContent" placeholder="Was möchtest du sagen? (mind. 60 Zeichen)"
+        oninput="state.cp.content=this.value;render()">${escapeHtml(cp.content)}</textarea>
+      <div class="helper">${cp.content.trim().length} / 60+ Zeichen</div>
+
+      ${emo.isEmotional
+        ? `<div class="banner cool mt-16" style="margin-left:0;margin-right:0">
+            <span style="font-size:22px">⏳</span>
+            <div>
+              <h4>Abkühlzeit aktiviert</h4>
+              <p>${escapeHtml(emo.reason)} Dein Beitrag wird ${state.demoMode ? '15 Sekunden' : '15 Minuten'} zurückgehalten.</p>
+            </div>
+          </div>`
+        : `<div class="banner calm mt-16" style="margin-left:0;margin-right:0">
+            <span style="font-size:22px">🌿</span>
+            <div>
+              <h4>Sachlich formuliert</h4>
+              <p>Aktuell erkennen wir keine aufgeladenen Marker. Dein Beitrag wird sofort veröffentlicht.</p>
+            </div>
+          </div>`
+      }
+
+      <button class="btn-primary mt-20" onclick="submitPost()">📤 Veröffentlichen</button>
+    </div>`;
+}
+
+function renderComposeReply() {
+  const cr = state.cr;
+  const post = postById(state.composeReplyPostId);
+  if (!post) { return renderAppbar({ title: 'Antworten', back: 'feed' }) + '<div class="content"><div class="center-text">Beitrag nicht gefunden.</div></div>'; }
+  const steelmanRequired = cr.stance === 'contra';
+  const steelmanOk = !steelmanRequired || cr.steelman.trim().length >= STEELMAN_MIN;
+  const contentOk = cr.content.trim().length >= REPLY_MIN_CONTENT;
+  const ready = steelmanOk && contentOk;
+
+  const stanceSeg = ['pro','contra','nachfrage'].map(s =>
+    `<button class="${cr.stance === s ? 'active' : ''}" onclick="state.cr.stance='${s}';render()">${escapeHtml(STANCES[s].label)}</button>`
+  ).join('');
+
+  return `
+    ${renderAppbar({ title: 'Antworten', back: 'detail' })}
+    <div class="content pad">
+      ${renderPostCardHtml(post, { noClick: true })}
+
+      <div class="label mt-16">Deine Haltung zu diesem Beitrag</div>
+      <div class="seg">${stanceSeg}</div>
+
+      ${steelmanRequired ? `
+        <div class="banner shield mt-16" style="margin-left:0;margin-right:0">
+          <span style="font-size:22px">🛡️</span>
+          <div>
+            <h4>Erst Steelman, dann Kritik</h4>
+            <p>Fasse die Position deines Gegenübers fair zusammen, bevor du widersprichst. Erst dann wird das Antwortfeld freigeschaltet.</p>
+          </div>
+        </div>
+        <div class="label mt-16">Steelman: stärkste Form der Gegenposition (mind. ${STEELMAN_MIN} Zeichen)</div>
+        <textarea class="field" id="crSteelman" rows="3" oninput="state.cr.steelman=this.value;render()" placeholder="Du argumentierst, dass…">${escapeHtml(cr.steelman)}</textarea>
+        <div class="helper ${steelmanOk ? '' : 'error'}">${cr.steelman.trim().length} / ${STEELMAN_MIN}+ Zeichen</div>
+      ` : ''}
+
+      <div class="label mt-16">Deine Begründung (mind. ${REPLY_MIN_CONTENT} Zeichen)</div>
+      <textarea class="field" id="crContent" rows="5"
+        ${steelmanRequired && !steelmanOk ? 'disabled style="opacity:0.45"' : ''}
+        oninput="state.cr.content=this.value;render()" placeholder="Begründe in eigenen Worten…">${escapeHtml(cr.content)}</textarea>
+      <div class="helper ${contentOk ? '' : 'error'}">${cr.content.trim().length} / ${REPLY_MIN_CONTENT}+ Zeichen</div>
+
+      <div class="banner balance mt-16" style="margin-left:0;margin-right:0">
+        <span style="font-size:22px">⚖️</span>
+        <div>
+          <h4>Begründete Antwort statt Daumen</h4>
+          <p>Es gibt keine Likes oder Dislikes. Wer die Mindestlänge unterläuft, wird angezeigt – aber nicht gezählt.</p>
+        </div>
+      </div>
+
+      <button class="btn-primary mt-20" ${ready ? '' : 'disabled'} onclick="submitReply()">📤 Antwort senden</button>
+    </div>`;
+}
+
+function renderPending() {
+  const items = state.pending.filter(p => p.authorId === state.currentUserId);
+  return `
+    ${renderAppbar({ title: 'Wartende Beiträge', back: 'feed' })}
+    <div class="content">
+      <div class="banner cool" style="margin:12px">
+        <span style="font-size:22px">⏳</span>
+        <div>
+          <h4>Abkühlzeit läuft</h4>
+          <p>Diese Beiträge wurden als emotional eingestuft und warten auf ihre Veröffentlichung. Du kannst sie jederzeit abbrechen.</p>
+        </div>
+      </div>
+      ${items.length === 0
+        ? '<div class="center-text">Aktuell wartet kein Beitrag. Wenn du gleich wütend tippst, siehst du ihn hier.</div>'
+        : items.map(p => {
+            const total = (p.publishAt - p.queuedAt) / 1000;
+            const remaining = Math.max(0, Math.ceil((p.publishAt - Date.now()) / 1000));
+            const progress = Math.min(100, Math.max(0, ((total - remaining) / total) * 100));
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            const t = TOPICS[p.topic], s = STANCES[p.stance];
+            return `
+              <div class="card pending-tile">
+                <div class="chips">
+                  <span class="chip topic-${p.topic}">${t.icon} ${escapeHtml(t.label)}</span>
+                  <span class="chip stance-${p.stance}">${s.icon} ${escapeHtml(s.label)}</span>
+                </div>
+                <div class="post-body">${nl2br(p.content)}</div>
+                <div class="small" style="margin-top:6px;font-style:italic">Erkannt: ${escapeHtml(p.reason)}</div>
+                <div class="progress"><div style="width:${progress}%"></div></div>
+                <div class="meta">
+                  <span>⏱️ ${remaining === 0 ? 'wird gleich veröffentlicht…' : 'noch ' + String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0')}</span>
+                  <span class="spacer"></span>
+                  <button class="btn-text" onclick="cancelPending('${p.id}')">🗑️ Verwerfen</button>
+                </div>
+              </div>`;
+          }).join('')
+      }
+    </div>`;
+}
+
+function renderSettings() {
+  const me = currentUser();
+  const userList = state.users.map(u => {
+    const sel = state.currentUserId === u.id;
+    return `
+      <div class="list-item" onclick="switchUser('${u.id}')" style="${sel ? 'background:var(--surface-container)' : ''}">
+        ${avatarHtml(u, 36)}
+        <div class="col">
+          <div class="title">${escapeHtml(u.klarname)} ${u.verified ? '<span class="verified-icon">✓</span>' : ''}</div>
+          <div class="subtitle">${escapeHtml(u.stadt)}</div>
+        </div>
+        <div style="font-size:18px;color:var(--primary)">${sel ? '◉' : '○'}</div>
+      </div>`;
+  }).join('');
+
+  return `
+    ${renderAppbar({ title: 'Einstellungen', back: 'feed' })}
+    <div class="content">
+      ${me ? `
+        <div class="list-item" style="cursor:default">
+          ${avatarHtml(me, 44)}
+          <div class="col">
+            <div class="title">${escapeHtml(me.klarname)}</div>
+            <div class="subtitle">${escapeHtml(me.stadt)} · ${me.verified ? 'verifiziert' : 'nicht verifiziert'}</div>
+          </div>
+          ${me.verified ? '<span class="verified-icon" style="font-size:20px">✓</span>' : ''}
+        </div>
+      ` : ''}
+
+      <div class="list-item" onclick="state.demoMode=!state.demoMode;render()">
+        <div class="col">
+          <div class="title">Demo-Modus</div>
+          <div class="subtitle">${state.demoMode ? 'Abkühlzeit: 15 Sekunden statt 15 Minuten – damit du sie sofort testen kannst.' : 'Abkühlzeit: echte 15 Minuten.'}</div>
+        </div>
+        <div class="switch ${state.demoMode ? 'on' : ''}"></div>
+      </div>
+
+      <div class="list-item" onclick="nav('rulesReview')">
+        <span style="font-size:22px">📖</span>
+        <div class="col"><div class="title">Spielregeln erneut ansehen</div></div>
+      </div>
+
+      <div style="padding:16px 16px 4px;font-weight:700">Perspektive wechseln</div>
+      <div class="small pad" style="padding-bottom:8px">Wechsle in einen anderen verifizierten Account, um den Filterblasen-Mix aus einer anderen Sicht zu erleben.</div>
+      ${userList}
+
+      <div class="small pad mt-20">Reasoned ist ein Prototyp für eine politische Debatten-App. Diese Web-Version ist eine vereinfachte Demo der echten Flutter-App.</div>
+    </div>`;
+}
+
+function renderRulesReview() {
+  const tiles = RULES.map((r, i) => `
+    <div class="rule-card" style="background:${r.color}14;border-color:${r.color}40">
+      <div class="icon-box" style="background:${r.color}">${r.icon}</div>
+      <div>
+        <h3 style="color:${r.color}">${i + 1}. ${escapeHtml(r.title)}</h3>
+        <p>${escapeHtml(r.body)}</p>
+      </div>
+    </div>
+  `).join('');
+  return `
+    ${renderAppbar({ title: 'Spielregeln', back: 'settings' })}
+    <div class="content" style="padding-top:14px">
+      <div class="pad small mb-16">Diese fünf Regeln gelten für alle Beiträge auf Reasoned.</div>
+      ${tiles}
+    </div>`;
+}
+
+// =========================================================
+// Master render
+// =========================================================
+function render() {
+  const root = $('app');
+
+  // Capture focus + cursor state before re-render
+  const ae = document.activeElement;
+  const focusedId = ae && ae.id ? ae.id : null;
+  const selStart = focusedId && ae.selectionStart != null ? ae.selectionStart : null;
+  const selEnd = focusedId && ae.selectionEnd != null ? ae.selectionEnd : null;
+  const scrollTop = root.scrollTop;
+
+  let body = '';
+  switch (state.screen) {
+    case 'onboarding':    body = renderOnboarding(); break;
+    case 'rules':         body = renderRules(); break;
+    case 'rulesReview':   body = renderRulesReview(); break;
+    case 'feed':          body = renderFeed(); break;
+    case 'detail':        body = renderDetail(); break;
+    case 'composePost':   body = renderComposePost(); break;
+    case 'composeReply':  body = renderComposeReply(); break;
+    case 'pending':       body = renderPending(); break;
+    case 'settings':      body = renderSettings(); break;
+    default: body = renderOnboarding();
+  }
+  root.innerHTML =
+    `<div class="demo-banner">${escapeHtml(DEMO_BANNER)}</div>` +
+    body +
+    (state.snack ? `<div class="snack">${escapeHtml(state.snack)}</div>` : '');
+
+  root.scrollTop = scrollTop;
+
+  // Restore focus + cursor position
+  if (focusedId) {
+    const el = $(focusedId);
+    if (el && typeof el.focus === 'function') {
+      el.focus({ preventScroll: true });
+      if (selStart != null && typeof el.setSelectionRange === 'function') {
+        try { el.setSelectionRange(selStart, selEnd); } catch (e) { /* ignore */ }
+      }
+    }
+  }
+}
+
+// Make handlers reachable from inline onclick
+window.nav = nav;
+window.startVerifying = startVerifying;
+window.acceptRules = acceptRules;
+window.submitPost = submitPost;
+window.submitReply = submitReply;
+window.cancelPending = cancelPending;
+window.switchUser = switchUser;
+window.pickAvatarFile = pickAvatarFile;
+window.state = state;
+window.render = render;
+
+render();
+</script>
+</body>
+</html>
