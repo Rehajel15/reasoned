@@ -21,6 +21,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String? _avatarPath;
 
   @override
+  void initState() {
+    super.initState();
+    _nameCtrl.addListener(() => setState(() {}));
+  }
+
+  @override
   void dispose() {
     _nameCtrl.dispose();
     _stadtCtrl.dispose();
@@ -85,16 +91,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_avatarPath == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Bitte lade ein Profilbild hoch – ohne Bild kein Konto.',
-          ),
-        ),
-      );
-      return;
-    }
     setState(() => _verifying = true);
     widget.state.createUser(
       klarname: _nameCtrl.text.trim(),
@@ -178,8 +174,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       const SizedBox(height: 4),
                       Text(
                         'Anonyme Konten gibt es hier nicht. Du brauchst deinen '
-                        'echten Namen, ein Profilbild und eine kurze '
-                        'Verifizierung.',
+                        'echten Namen und eine kurze Verifizierung. Ein '
+                        'Profilbild ist optional.',
                         style: TextStyle(color: scheme.onSurfaceVariant),
                       ),
                       const SizedBox(height: 20),
@@ -194,7 +190,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 height: 112,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: scheme.surface,
+                                  color: _avatarPath == null
+                                      ? scheme.primaryContainer
+                                      : scheme.surface,
                                   border: Border.all(
                                     color: scheme.primary,
                                     width: 2,
@@ -209,11 +207,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 child: _avatarPath != null
                                     ? null
                                     : Center(
-                                        child: Icon(
-                                          Icons.person_outline,
-                                          size: 52,
-                                          color: scheme.onSurfaceVariant,
-                                        ),
+                                        child: _nameCtrl.text.trim().isEmpty
+                                            ? Icon(
+                                                Icons.person_outline,
+                                                size: 52,
+                                                color: scheme.onPrimaryContainer,
+                                              )
+                                            : Text(
+                                                _nameCtrl.text
+                                                    .trim()
+                                                    .characters
+                                                    .first
+                                                    .toUpperCase(),
+                                                style: TextStyle(
+                                                  fontSize: 56,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: scheme
+                                                      .onPrimaryContainer,
+                                                ),
+                                              ),
                                       ),
                               ),
                               Container(
@@ -240,8 +252,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       Center(
                         child: Text(
                           _avatarPath == null
-                              ? 'Profilbild auswählen (Pflicht)'
+                              ? 'Profilbild auswählen (optional) – sonst wird '
+                                  'dein Anfangsbuchstabe angezeigt'
                               : 'Antippen, um Bild zu ändern',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: scheme.onSurfaceVariant,
                             fontSize: 12,

@@ -24,9 +24,10 @@ sie aktiv akzeptiert werden, kommt der Feed. Die Seite ist später jederzeit
 
 ## Funktionen
 
-- **Profilbild-Pflicht**: Beim Onboarding muss ein Foto ausgewählt oder
-  aufgenommen werden (`image_picker`). Demo-Nutzer haben gebündelte
-  DiceBear-Avatare.
+- **Profilbild (optional)**: Beim Onboarding kann ein Foto ausgewählt oder
+  aufgenommen werden (`image_picker`). Wer keins hochlädt, bekommt einen
+  farbigen Kreis mit dem Anfangsbuchstaben des Vornamens. Demo-Nutzer haben
+  gebündelte DiceBear-Avatare.
 - **Klarname + Stadt + Verifizierung**: Anonyme Konten gibt es nicht; im
   Prototyp wird die Verifizierung simuliert.
 - **Themen-Farbsystem**: Tempolimit (orange), Bürgergeld (grün),
@@ -75,7 +76,7 @@ lib/
   models.dart                     # AppUser, Post, Reply, Topic, Stance
   emotion_detector.dart           # Erkennt aufgeladene Beiträge
   screens/
-    onboarding_screen.dart        # Profilbild + Klarname + Verifizierung
+    onboarding_screen.dart        # Klarname + Verifizierung + optionales Profilbild
     rules_screen.dart             # Pflicht-Regelseite mit Akzeptieren-Button
     feed_screen.dart              # Mischt Gegenpositionen ein
     post_detail_screen.dart       # Beitrag + Antworten
