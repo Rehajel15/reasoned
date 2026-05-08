@@ -51,14 +51,26 @@ class _ComposeReplyScreenState extends State<ComposeReplyScreen> {
   }
 
   void _submit() {
-    if (!_formKey.currentState!.validate()) return;
+    // Length checks are already enforced by _readyToSubmit gating the button.
+    // Skip _formKey.currentState!.validate() because the conditional steelman
+    // field flickers FormField registration when the user toggles the stance,
+    // which can cause spurious validation failures.
+    if (!_readyToSubmit) return;
+
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
     widget.state.addReply(
       widget.postId,
       stance: _stance,
       steelman: _steelmanRequired ? _steelmanCtrl.text.trim() : null,
       content: _contentCtrl.text.trim(),
     );
-    Navigator.of(context).pop();
+    if (!mounted) return;
+    navigator.pop();
+    messenger.showSnackBar(
+      const SnackBar(content: Text('Antwort gesendet.')),
+    );
   }
 
   @override

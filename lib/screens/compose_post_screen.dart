@@ -40,7 +40,13 @@ class _ComposePostScreenState extends State<ComposePostScreen> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    final pending = widget.state.submitPost(
+    // Capture navigator + messenger BEFORE pop, so any later snackbar action
+    // (e.g. tapping "Anzeigen") doesn't reach into a disposed context.
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final appState = widget.state;
+
+    final pending = appState.submitPost(
       topic: _topic,
       stance: _stance,
       content: _contentCtrl.text.trim(),
@@ -48,20 +54,21 @@ class _ComposePostScreenState extends State<ComposePostScreen> {
       triggerReason: _emotion.reason,
     );
     if (!mounted) return;
-    Navigator.of(context).pop();
+    navigator.pop();
+
     if (pending != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text(
-            'Dein Beitrag wartet ${_formatDuration(widget.state.cooldownDuration)} '
+            'Dein Beitrag wartet ${_formatDuration(appState.cooldownDuration)} '
             'in der Abkühlzeit.',
           ),
           action: SnackBarAction(
             label: 'Anzeigen',
             onPressed: () {
-              Navigator.of(context).push(
+              navigator.push(
                 MaterialPageRoute(
-                  builder: (_) => PendingScreen(state: widget.state),
+                  builder: (_) => PendingScreen(state: appState),
                 ),
               );
             },
@@ -69,7 +76,7 @@ class _ComposePostScreenState extends State<ComposePostScreen> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('Beitrag veröffentlicht.')),
       );
     }
