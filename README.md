@@ -137,10 +137,6 @@ Ablauf in den Feed schiebt. Der Filterblasen-Mix wertet aus, welche Stance der
 aktuelle User pro Thema dominiert vertritt, und sortiert Gegenpositionen nach
 vorn.
 
-### Bilder
-
-Screenshots werden hier später ergänzt.
-
 ### Lizenz
 
 Privates Schulprojekt, keine Lizenz vergeben.
@@ -276,10 +272,6 @@ The cooldown mechanism uses a `Timer.periodic` that promotes pending posts
 into the feed when their wait is over. The filter-bubble mix evaluates which
 stance the current user predominantly holds per topic and sorts opposing
 posts to the top.
-
-### Images
-
-Screenshots will be added later.
 
 ### License
 
