@@ -559,10 +559,10 @@ const RULES = [
 // =========================================================
 function seedUsers() {
   return [
-    { id: 'u-anna',  klarname: 'Anna Müller',     stadt: 'Hamburg', verified: true, rulesAccepted: true, avatar: 'avatars/anna.png' },
-    { id: 'u-bernd', klarname: 'Bernd Schäfer',    stadt: 'München', verified: true, rulesAccepted: true, avatar: 'avatars/bernd.png' },
-    { id: 'u-clara', klarname: 'Clara Otieno',     stadt: 'Leipzig', verified: true, rulesAccepted: true, avatar: 'avatars/clara.png' },
-    { id: 'u-david', klarname: 'David Petrov',     stadt: 'Köln',    verified: true, rulesAccepted: true, avatar: 'avatars/david.png' },
+    { id: 'u-anna',  klarname: 'Anna Müller',     stadt: 'Hamburg', alter: 32, verified: true, rulesAccepted: true, avatar: 'avatars/anna.png' },
+    { id: 'u-bernd', klarname: 'Bernd Schäfer',    stadt: 'München', alter: 47, verified: true, rulesAccepted: true, avatar: 'avatars/bernd.png' },
+    { id: 'u-clara', klarname: 'Clara Otieno',     stadt: 'Leipzig', alter: 28, verified: true, rulesAccepted: true, avatar: 'avatars/clara.png' },
+    { id: 'u-david', klarname: 'David Petrov',     stadt: 'Köln',    alter: 39, verified: true, rulesAccepted: true, avatar: 'avatars/david.png' },
   ];
 }
 
@@ -614,8 +614,17 @@ const state = {
   pending: [],
   currentUserId: null,    // null until onboarded
   demoMode: true,         // 15s vs 15min
-  // onboarding form
-  onboard: { name: '', stadt: '', avatar: null, verifying: false },
+  // onboarding: ID-card scan + simulated AI check
+  onboard: {
+    step: 'capture',          // 'capture' | 'verifying' | 'verified'
+    frontPhoto: null,
+    backPhoto: null,
+    submitting: false,
+    // values the "AI" pretends to read from the ID
+    aiName: 'Max Mustermann',
+    aiStadt: 'Berlin',
+    aiAlter: 34,
+  },
   // rules screen
   rulesAccepted: false,
   // compose post form
@@ -766,27 +775,39 @@ function nav(screen, params = {}) {
   render();
 }
 
-function startVerifying() {
-  const name = state.onboard.name.trim();
-  const stadt = state.onboard.stadt.trim();
-  if (name.length < 4 || !name.includes(' ')) {
-    snack('Bitte Vor- und Nachname mit Leerzeichen eingeben.'); return;
+function startAiCheck() {
+  if (!state.onboard.frontPhoto || !state.onboard.backPhoto) {
+    snack('Bitte zuerst Vorder- und Rückseite fotografieren.');
+    return;
   }
-  if (!stadt) { snack('Bitte Stadt eingeben.'); return; }
-  state.onboard.verifying = true;
+  state.onboard.step = 'verifying';
+  render();
+  setTimeout(() => {
+    state.onboard.step = 'verified';
+    render();
+  }, 3000);
+}
+
+function confirmIdentity() {
+  const o = state.onboard;
+  state.onboard.submitting = true;
   render();
   setTimeout(() => {
     const id = 'u-' + Math.random().toString(36).slice(2, 8);
     state.users.push({
-      id, klarname: name, stadt,
-      verified: true, rulesAccepted: false,
-      avatar: state.onboard.avatar,
+      id,
+      klarname: o.aiName,
+      stadt: o.aiStadt,
+      alter: o.aiAlter,
+      verified: true,
+      rulesAccepted: false,
+      avatar: o.frontPhoto,
     });
     state.currentUserId = id;
-    state.onboard.verifying = false;
+    state.onboard.submitting = false;
     state.screen = 'rules';
     render();
-  }, 1500);
+  }, 600);
 }
 
 function acceptRules() {
@@ -856,12 +877,16 @@ function switchUser(id) {
 }
 
 // =========================================================
-// Avatar picker (file → object URL)
+// ID-card photo picker (file → object URL)
 // =========================================================
-function pickAvatarFile(file) {
+function pickIdPhoto(file, side) {
   if (!file) return;
   const url = URL.createObjectURL(file);
-  state.onboard.avatar = url;
+  if (side === 'front') {
+    state.onboard.frontPhoto = url;
+  } else {
+    state.onboard.backPhoto = url;
+  }
   render();
 }
 
@@ -880,51 +905,108 @@ function renderAppbar({ title, back, actions = '' }) {
 
 function renderOnboarding() {
   const o = state.onboard;
-  const initial = o.name.trim() ? o.name.trim()[0].toUpperCase() : '';
-  const avatarPreview = o.avatar
-    ? `<img src="${escapeHtml(o.avatar)}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
-    : (initial ? initial : '👤');
-
-  return `
+  const hero = `
     <div class="hero">
       <div style="font-size:32px;">💬</div>
       <h1>Willkommen bei Reasoned</h1>
       <p>Politische Debatten, mit Regeln, die für alle gelten.</p>
-    </div>
+    </div>`;
+
+  if (o.step === 'capture') return hero + renderOnboardCapture(o);
+  if (o.step === 'verifying') return hero + renderOnboardVerifying();
+  return hero + renderOnboardVerified(o);
+}
+
+function renderIdSlot(side, label, hint, photo) {
+  const has = !!photo;
+  const inputId = side === 'front' ? 'idFrontFile' : 'idBackFile';
+  const inner = has
+    ? `<img src="${escapeHtml(photo)}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px;filter:brightness(0.78)">`
+    : '';
+  const icon = has ? '✓' : '📷';
+  const iconColor = has ? '#fff' : 'var(--primary)';
+  const titleColor = has ? '#fff' : 'var(--on-surface)';
+  const hintColor = has ? 'rgba(255,255,255,0.85)' : 'var(--on-surface-variant)';
+  const hintText = has ? 'Foto aufgenommen – antippen zum Ändern' : hint;
+  const bg = has ? 'var(--surface)' : 'var(--surface-container-high)';
+  const border = has ? '2px solid var(--primary)' : '1px solid var(--outline-variant)';
+  return `
+    <label for="${inputId}" style="display:block;position:relative;height:128px;border-radius:14px;border:${border};background:${bg};overflow:hidden;cursor:pointer;margin-top:12px">
+      ${inner}
+      <div style="position:relative;display:flex;align-items:center;gap:14px;padding:14px;height:100%;box-sizing:border-box">
+        <div style="font-size:32px;color:${iconColor}">${icon}</div>
+        <div style="display:flex;flex-direction:column;justify-content:center">
+          <div style="font-weight:700;color:${titleColor}">${escapeHtml(label)}</div>
+          <div style="font-size:13px;color:${hintColor};margin-top:4px">${escapeHtml(hintText)}</div>
+        </div>
+      </div>
+      <input id="${inputId}" type="file" accept="image/*" capture="environment" style="display:none" onchange="pickIdPhoto(this.files[0], '${side}')">
+    </label>`;
+}
+
+function renderOnboardCapture(o) {
+  const bothCaptured = !!o.frontPhoto && !!o.backPhoto;
+  return `
     <div class="content pad">
-      <h3 style="margin:18px 0 4px">Lege dein verifiziertes Profil an</h3>
-      <p class="small">Anonyme Konten gibt es hier nicht. Du brauchst deinen echten Namen und eine kurze Verifizierung. Ein Profilbild ist optional.</p>
+      <h3 style="margin:18px 0 4px">Verifiziere dich mit deinem Personalausweis</h3>
+      <p class="small">Fotografiere die Vorder- und Rückseite deines Personalausweises. Anschließend prüft eine KI die Echtheit und übernimmt Name, Alter, Stadt und dein Profilbild automatisch.</p>
 
-      <div style="margin:20px 0 4px;text-align:center">
-        <label class="avatar avatar-onboard" for="avatarFile" style="cursor:pointer">
-          ${avatarPreview}
-          <span class="cam-badge">📷</span>
-        </label>
-        <input id="avatarFile" type="file" accept="image/*" style="display:none" onchange="pickAvatarFile(this.files[0])">
-        <div class="small" style="margin-top:6px">${o.avatar ? 'Antippen, um Bild zu ändern' : 'Profilbild auswählen (optional) – sonst wird dein Anfangsbuchstabe angezeigt'}</div>
-      </div>
-
-      <div class="mt-20">
-        <div class="label">Vor- und Nachname (Klarname)</div>
-        <input class="field" id="onbName" value="${escapeHtml(o.name)}" placeholder="Lina Bauer"
-               oninput="state.onboard.name = this.value; render()">
-      </div>
-      <div class="mt-16">
-        <div class="label">Stadt</div>
-        <input class="field" id="onbStadt" value="${escapeHtml(o.stadt)}" placeholder="Berlin"
-               oninput="state.onboard.stadt = this.value; render()">
-      </div>
+      ${renderIdSlot('front', 'Vorderseite', 'Foto vorne (mit Bild & Name)', o.frontPhoto)}
+      ${renderIdSlot('back', 'Rückseite', 'Foto hinten (mit Anschrift)', o.backPhoto)}
 
       <div class="banner shield mt-20" style="margin-left:0;margin-right:0">
         <span style="font-size:22px">👆</span>
         <div>
-          <h4>Verifizierung</h4>
-          <p>Im Prototyp wird die Verifizierung simuliert (1,5 Sek.). In Produktion wäre hier z. B. ein eID- oder Postident-Schritt.</p>
+          <h4>KI-Echtheitsprüfung</h4>
+          <p>Im Prototyp wird die KI-Prüfung simuliert (3 Sek.). In Produktion wäre hier z. B. eine eID- oder Postident-Erkennung.</p>
         </div>
       </div>
 
-      <button class="btn-primary mt-20" ${o.verifying ? 'disabled' : ''} onclick="startVerifying()">
-        ${o.verifying ? '⏳ Verifiziere…' : '✓ Klarname bestätigen & verifizieren'}
+      <button class="btn-primary mt-20" ${bothCaptured ? '' : 'disabled'} onclick="startAiCheck()">
+        ✨ Echtheit per KI prüfen
+      </button>
+    </div>`;
+}
+
+function renderOnboardVerifying() {
+  return `
+    <div class="content pad" style="text-align:center">
+      <div style="margin:24px auto 0;width:92px;height:92px;border-radius:50%;background:var(--primary-container);display:flex;align-items:center;justify-content:center">
+        <div style="width:44px;height:44px;border-radius:50%;border:3px solid var(--primary);border-top-color:transparent;animation:spin 0.9s linear infinite"></div>
+      </div>
+      <h3 style="margin:20px 0 4px">KI prüft die Echtheit deines Ausweises…</h3>
+      <p class="small">Wir lesen Name, Alter, Stadt und dein Lichtbild aus. Das dauert nur einen Moment.</p>
+    </div>
+    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>`;
+}
+
+function renderOnboardVerified(o) {
+  const avatarPreview = o.frontPhoto
+    ? `<img src="${escapeHtml(o.frontPhoto)}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
+    : '👤';
+  const lockedField = (label, value) => `
+    <div class="mt-16">
+      <div class="label">${escapeHtml(label)} <span style="font-weight:400;color:var(--on-surface-variant)">🔒</span></div>
+      <input class="field" value="${escapeHtml(value)}" disabled style="opacity:0.85;cursor:not-allowed">
+    </div>`;
+  return `
+    <div class="content pad">
+      <h3 style="margin:18px 0 4px">✓ Ausweis erkannt – Daten übernommen</h3>
+      <p class="small">Die folgenden Felder hat die KI automatisch aus deinem Ausweis gezogen. Du kannst sie hier nicht ändern – das ist der Sinn der Verifizierung.</p>
+
+      <div style="margin:20px 0 4px;text-align:center">
+        <div class="avatar avatar-onboard" style="cursor:default">
+          ${avatarPreview}
+        </div>
+        <div class="small" style="margin-top:6px">Profilbild aus Ausweisfoto</div>
+      </div>
+
+      ${lockedField('Vor- und Nachname (Klarname)', o.aiName)}
+      ${lockedField('Alter', o.aiAlter + ' Jahre')}
+      ${lockedField('Stadt', o.aiStadt)}
+
+      <button class="btn-primary mt-20" ${o.submitting ? 'disabled' : ''} onclick="confirmIdentity()">
+        ${o.submitting ? '⏳ Verifiziere…' : '✓ Übernehmen & fortfahren'}
       </button>
     </div>`;
 }
@@ -1217,7 +1299,7 @@ function renderSettings() {
           ${avatarHtml(me, 44)}
           <div class="col">
             <div class="title">${escapeHtml(me.klarname)}</div>
-            <div class="subtitle">${escapeHtml(me.stadt)} · ${me.verified ? 'verifiziert' : 'nicht verifiziert'}</div>
+            <div class="subtitle">${escapeHtml(me.stadt)}${me.alter ? ' · ' + me.alter + ' J.' : ''} · ${me.verified ? 'verifiziert' : 'nicht verifiziert'}</div>
           </div>
           ${me.verified ? '<span class="verified-icon" style="font-size:20px">✓</span>' : ''}
         </div>
@@ -1309,13 +1391,14 @@ function render() {
 
 // Make handlers reachable from inline onclick
 window.nav = nav;
-window.startVerifying = startVerifying;
+window.startAiCheck = startAiCheck;
+window.confirmIdentity = confirmIdentity;
 window.acceptRules = acceptRules;
 window.submitPost = submitPost;
 window.submitReply = submitReply;
 window.cancelPending = cancelPending;
 window.switchUser = switchUser;
-window.pickAvatarFile = pickAvatarFile;
+window.pickIdPhoto = pickIdPhoto;
 window.state = state;
 window.render = render;
 
