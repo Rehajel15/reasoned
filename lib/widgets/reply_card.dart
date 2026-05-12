@@ -17,34 +17,24 @@ class ReplyCard extends StatelessWidget {
     final counts = reply.counts;
 
     final stanceColor = reply.stance.color;
+    final outlineColor = counts
+        ? scheme.outlineVariant
+        : scheme.error.withValues(alpha: 0.4);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: scheme.surface,
-        border: Border(
-          top: BorderSide(
-            color: counts
-                ? scheme.outlineVariant
-                : scheme.error.withValues(alpha: 0.4),
-          ),
-          right: BorderSide(
-            color: counts
-                ? scheme.outlineVariant
-                : scheme.error.withValues(alpha: 0.4),
-          ),
-          bottom: BorderSide(
-            color: counts
-                ? scheme.outlineVariant
-                : scheme.error.withValues(alpha: 0.4),
-          ),
-          left: BorderSide(color: stanceColor, width: 4),
-        ),
+        border: Border.all(color: outlineColor),
         borderRadius: BorderRadius.circular(12),
       ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
           Row(
             children: [
               UserAvatar(
@@ -87,38 +77,49 @@ class ReplyCard extends StatelessWidget {
           if (reply.steelman != null && reply.steelman!.trim().isNotEmpty) ...[
             const SizedBox(height: 10),
             Container(
+              clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 color: scheme.secondaryContainer.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(8),
-                border: Border(
-                  left: BorderSide(color: scheme.secondary, width: 3),
-                ),
               ),
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Stack(
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.shield_outlined, size: 14),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Steelman der Gegenposition',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: scheme.onSecondaryContainer,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(13, 10, 10, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.shield_outlined, size: 14),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Steelman der Gegenposition',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: scheme.onSecondaryContainer,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    reply.steelman!,
-                    style: const TextStyle(
-                      fontStyle: FontStyle.italic,
-                      fontSize: 13,
+                        const SizedBox(height: 4),
+                        Text(
+                          reply.steelman!,
+                          style: const TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: 3,
+                    child: ColoredBox(color: scheme.secondary),
                   ),
                 ],
               ),
@@ -141,6 +142,16 @@ class ReplyCard extends StatelessWidget {
               ],
             ),
           ],
+        ],
+            ),
+          ),
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 4,
+            child: ColoredBox(color: stanceColor),
+          ),
         ],
       ),
     );
