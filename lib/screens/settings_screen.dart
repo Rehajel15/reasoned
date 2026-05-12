@@ -23,7 +23,9 @@ class SettingsScreen extends StatelessWidget {
                   leading: UserAvatar(user: user, radius: 22),
                   title: Text(user.klarname),
                   subtitle: Text(
-                    '${user.stadt}\n${user.verified ? "verifiziert" : "nicht verifiziert"}',
+                    '${user.stadt}'
+                    '${user.alter != null ? " · ${user.alter} J." : ""}'
+                    '\n${user.verified ? "verifiziert" : "nicht verifiziert"}',
                   ),
                   isThreeLine: true,
                   trailing:

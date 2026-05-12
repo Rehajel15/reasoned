@@ -92,6 +92,7 @@ class AppUser {
   final bool verified;
   final bool rulesAccepted;
   final String stadt;
+  final int? alter;
   final String? avatarPath;
 
   const AppUser({
@@ -100,6 +101,7 @@ class AppUser {
     required this.verified,
     required this.rulesAccepted,
     required this.stadt,
+    this.alter,
     this.avatarPath,
   });
 
@@ -108,6 +110,7 @@ class AppUser {
     bool? verified,
     bool? rulesAccepted,
     String? stadt,
+    int? alter,
     String? avatarPath,
   }) {
     return AppUser(
@@ -116,6 +119,7 @@ class AppUser {
       verified: verified ?? this.verified,
       rulesAccepted: rulesAccepted ?? this.rulesAccepted,
       stadt: stadt ?? this.stadt,
+      alter: alter ?? this.alter,
       avatarPath: avatarPath ?? this.avatarPath,
     );
   }

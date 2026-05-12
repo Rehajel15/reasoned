@@ -52,6 +52,7 @@ class AppState extends ChangeNotifier {
   String createUser({
     required String klarname,
     required String stadt,
+    int? alter,
     String? avatarPath,
   }) {
     final id = _newId('u');
@@ -61,6 +62,7 @@ class AppState extends ChangeNotifier {
       verified: false,
       rulesAccepted: false,
       stadt: stadt,
+      alter: alter,
       avatarPath: avatarPath,
     );
     _currentUserId = id;
@@ -267,6 +269,7 @@ class AppState extends ChangeNotifier {
       verified: true,
       rulesAccepted: true,
       stadt: 'Hamburg',
+      alter: 32,
       avatarPath: 'assets/avatars/anna.png',
     );
     final bernd = AppUser(
@@ -275,6 +278,7 @@ class AppState extends ChangeNotifier {
       verified: true,
       rulesAccepted: true,
       stadt: 'München',
+      alter: 47,
       avatarPath: 'assets/avatars/bernd.png',
     );
     final clara = AppUser(
@@ -283,6 +287,7 @@ class AppState extends ChangeNotifier {
       verified: true,
       rulesAccepted: true,
       stadt: 'Leipzig',
+      alter: 28,
       avatarPath: 'assets/avatars/clara.png',
     );
     final david = AppUser(
@@ -291,6 +296,7 @@ class AppState extends ChangeNotifier {
       verified: true,
       rulesAccepted: true,
       stadt: 'Köln',
+      alter: 39,
       avatarPath: 'assets/avatars/david.png',
     );
     _users[anna.id] = anna;

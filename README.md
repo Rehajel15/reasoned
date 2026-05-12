@@ -37,7 +37,7 @@ auch auf Englisch verfügbar.
 
 | # | Regel | Wo sie greift |
 |---|-------|---------------|
-| 1 | **Zeige dich** – Klarnamen-Pflicht, kein anonymes Posten | Onboarding mit Vor- + Nachname und simulierter Verifizierung |
+| 1 | **Zeige dich** – Klarnamen-Pflicht, kein anonymes Posten | Onboarding mit Ausweis-Scan (Vorder- und Rückseite), simulierte KI-Echtheitsprüfung füllt Klarname, Alter, Stadt und Profilbild automatisch aus |
 | 2 | **Schätze deine Gegner** – Steelman vor Kritik | Beim Antworten mit „Ablehnung" wird das Antwortfeld erst freigeschaltet, wenn die Gegenposition (≥ 80 Zeichen) wohlwollend zusammengefasst wurde |
 | 3 | **Bewahre Ruhe** – 15 Minuten Abkühlzeit für emotionale Beiträge | Erkennt aufgeladene Wörter, Großbuchstaben-Schreierei und mehrere Ausrufezeichen, hält den Beitrag in einer Warteschlange zurück |
 | 4 | **Platzt deine Blase** – Gegenpositionen im Feed | Der Feed mischt Beiträge so, dass Gegenpositionen zuerst erscheinen und sich mit der eigenen Sicht abwechseln |
@@ -49,12 +49,13 @@ sie aktiv akzeptiert werden, kommt der Feed. Die Seite ist später jederzeit
 
 ### Funktionen
 
-- **Profilbild (optional)**: Beim Onboarding kann ein Foto ausgewählt oder
-  aufgenommen werden (`image_picker`). Wer keins hochlädt, bekommt einen
-  farbigen Kreis mit dem Anfangsbuchstaben des Vornamens. Demo-Nutzer haben
+- **Ausweis-Onboarding**: Beim ersten Start fotografiert der Nutzer Vorder-
+  und Rückseite seines Personalausweises (`image_picker`). Eine simulierte
+  KI-Prüfung übernimmt Klarname, Alter, Stadt und das Profilbild direkt aus
+  dem Ausweisfoto – die Felder sind danach gesperrt. Demo-Nutzer haben
   gebündelte DiceBear-Avatare.
-- **Klarname + Stadt + Verifizierung**: Anonyme Konten gibt es nicht; im
-  Prototyp wird die Verifizierung simuliert.
+- **Klarname + Alter + Stadt + Verifizierung**: Anonyme Konten gibt es
+  nicht; im Prototyp wird die Verifizierung simuliert.
 - **Themen-Farbsystem**: Tempolimit (orange), Bürgergeld (grün),
   Klima/Wirtschaft (teal), Wahlrecht ab 16 (lila). Jeder Beitrag bekommt
   einen Farbstreifen, der das Thema sofort sichtbar macht.
@@ -101,7 +102,7 @@ lib/
   models.dart                     # AppUser, Post, Reply, Topic, Stance
   emotion_detector.dart           # Erkennt aufgeladene Beiträge
   screens/
-    onboarding_screen.dart        # Klarname + Verifizierung + optionales Profilbild
+    onboarding_screen.dart        # Ausweis-Scan + simulierte KI-Prüfung, füllt Klarname, Alter, Stadt, Profilbild
     rules_screen.dart             # Pflicht-Regelseite mit Akzeptieren-Button
     feed_screen.dart              # Mischt Gegenpositionen ein
     post_detail_screen.dart       # Beitrag + Antworten
@@ -173,7 +174,7 @@ German.
 
 | # | Rule | Where it applies |
 |---|------|------------------|
-| 1 | **Show yourself** – real names required, no anonymous posting | Onboarding with first + last name and a simulated verification step |
+| 1 | **Show yourself** – real names required, no anonymous posting | Onboarding with an ID-card scan (front + back); a simulated AI check auto-fills real name, age, city and profile picture |
 | 2 | **Respect your opponents** – steelman before criticism | When replying with "disagree", the reply field is locked until the opposing position (≥ 80 characters) has been summarised charitably |
 | 3 | **Stay calm** – 15-minute cooldown for emotional posts | Detects loaded words, all-caps shouting and multiple exclamation marks, then holds the post in a queue |
 | 4 | **Burst your bubble** – opposing views in the feed | The feed mixes posts so opposing positions appear first and alternate with the user's own side |
@@ -185,12 +186,13 @@ reachable again at any time from settings.
 
 ### Features
 
-- **Profile picture (optional):** During onboarding a photo can be selected
-  or captured (`image_picker`). If none is uploaded, the user gets a
-  coloured circle with the first letter of their first name. Demo users
-  ship with bundled DiceBear avatars.
-- **Real name + city + verification:** No anonymous accounts; verification
-  is simulated in the prototype.
+- **ID-card onboarding:** On first launch the user photographs the front
+  and back of their German ID card (`image_picker`). A simulated AI check
+  extracts real name, age, city and the profile picture straight from the
+  card photo – the fields are then locked. Demo users ship with bundled
+  DiceBear avatars.
+- **Real name + age + city + verification:** No anonymous accounts;
+  verification is simulated in the prototype.
 - **Topic colour system:** Speed limit (orange), unemployment benefits
   ("Bürgergeld", green), climate vs. economy (teal), voting age 16
   (purple). Each post gets a coloured stripe so the topic is instantly
@@ -237,7 +239,7 @@ lib/
   models.dart                     # AppUser, Post, Reply, Topic, Stance
   emotion_detector.dart           # Detects loaded posts
   screens/
-    onboarding_screen.dart        # Real name + verification + optional avatar
+    onboarding_screen.dart        # ID-card scan + simulated AI check, fills real name, age, city, avatar
     rules_screen.dart             # Mandatory rules page with accept button
     feed_screen.dart              # Mixes opposing views in
     post_detail_screen.dart       # Post + replies
